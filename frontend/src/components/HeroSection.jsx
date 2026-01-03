@@ -174,32 +174,73 @@ const HeroSection = ({ onCheckEmailClick, onHowItWorksClick }) => {
           </Button>
         </motion.div>
 
-        {/* Stats */}
+        {/* Unique Stats Ticker */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8"
+          className="mt-16"
         >
-          {[
-            { label: "Emails Analyzed", value: "2.5M+" },
-            { label: "Spam Blocked", value: "847K+" },
-            { label: "Accuracy Rate", value: "99.2%" },
-            { label: "Response Time", value: "<50ms" }
-          ].map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 1 + index * 0.1 }}
-              className="text-center"
-            >
-              <div className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
-                {stat.value}
-              </div>
-              <div className="text-sm text-gray-500 mt-1">{stat.label}</div>
-            </motion.div>
-          ))}
+          <div className="flex flex-wrap justify-center items-center gap-3 md:gap-4">
+            {[
+              { label: "Emails Analyzed", value: "2.5M+", color: "cyan" },
+              { label: "Spam Blocked", value: "847K+", color: "violet" },
+              { label: "Accuracy Rate", value: "99.2%", color: "emerald" },
+              { label: "Response Time", value: "<50ms", color: "amber" }
+            ].map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 1 + index * 0.15 }}
+                whileHover={{ scale: 1.05, y: -3 }}
+                className="group relative"
+              >
+                <div className={`relative px-5 py-3 rounded-2xl bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-sm border border-white/[0.1] hover:border-${stat.color}-500/40 transition-all duration-300 cursor-default`}>
+                  {/* Glow effect on hover */}
+                  <div className={`absolute inset-0 rounded-2xl bg-${stat.color}-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                  
+                  <div className="relative flex items-center gap-3">
+                    {/* Colored indicator dot */}
+                    <div className={`w-2.5 h-2.5 rounded-full ${
+                      stat.color === 'cyan' ? 'bg-cyan-400' :
+                      stat.color === 'violet' ? 'bg-violet-400' :
+                      stat.color === 'emerald' ? 'bg-emerald-400' :
+                      'bg-amber-400'
+                    } shadow-lg ${
+                      stat.color === 'cyan' ? 'shadow-cyan-400/50' :
+                      stat.color === 'violet' ? 'shadow-violet-400/50' :
+                      stat.color === 'emerald' ? 'shadow-emerald-400/50' :
+                      'shadow-amber-400/50'
+                    }`}>
+                      <motion.div
+                        className={`w-full h-full rounded-full ${
+                          stat.color === 'cyan' ? 'bg-cyan-400' :
+                          stat.color === 'violet' ? 'bg-violet-400' :
+                          stat.color === 'emerald' ? 'bg-emerald-400' :
+                          'bg-amber-400'
+                        }`}
+                        animate={{ scale: [1, 1.5, 1], opacity: [1, 0, 1] }}
+                        transition={{ duration: 2, repeat: Infinity, delay: index * 0.5 }}
+                      />
+                    </div>
+                    
+                    <div className="flex flex-col">
+                      <span className={`text-xl md:text-2xl font-bold ${
+                        stat.color === 'cyan' ? 'text-cyan-400' :
+                        stat.color === 'violet' ? 'text-violet-400' :
+                        stat.color === 'emerald' ? 'text-emerald-400' :
+                        'text-amber-400'
+                      }`}>
+                        {stat.value}
+                      </span>
+                      <span className="text-[11px] text-gray-500 uppercase tracking-wider">{stat.label}</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
       </div>
 
