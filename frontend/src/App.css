@@ -32,3 +32,33 @@
         transform: rotate(360deg);
     }
 }
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0a0a0f;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1f2937;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #374151;
+}
+
+/* Selection color */
+::selection {
+    background: rgba(34, 211, 238, 0.3);
+    color: white;
+}
+
+/* Smooth scroll */
+html {
+    scroll-behavior: smooth;
+}
