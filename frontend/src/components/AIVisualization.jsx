@@ -1,7 +1,337 @@
-import React, { useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Cpu, Database, Shield, Zap } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
+import { Cpu, Database, Shield, Zap, Activity, TrendingUp } from 'lucide-react';
 
+// Animated counter component
+const AnimatedCounter = ({ value, suffix = '', duration = 2 }) => {
+  const [count, setCount] = useState(0);
+  const numericValue = parseFloat(value.replace(/[^0-9.]/g, ''));
+
+  useEffect(() => {
+    let startTime;
+    let animationFrame;
+
+    const animate = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
+      
+      setCount(Math.floor(progress * numericValue));
+      
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [numericValue, duration]);
+
+  return <span>{count}{suffix}</span>;
+};
+
+// Magnetic hover effect for cards
+const MagneticCard = ({ children, className }) => {
+  const ref = useRef(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  
+  const springX = useSpring(x, { stiffness: 150, damping: 15 });
+  const springY = useSpring(y, { stiffness: 150, damping: 15 });
+
+  const handleMouseMove = (e) => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (rect) {
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      x.set((e.clientX - centerX) / 10);
+      y.set((e.clientY - centerY) / 10);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      style={{ x: springX, y: springY }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// Unique Bento Grid Stats Section
+const BentoStatsGrid = () => {
+  const stats = [
+    { 
+      id: 1,
+      icon: Cpu, 
+      value: '128', 
+      suffix: ' TPU',
+      label: 'Processing Cores',
+      color: 'cyan',
+      size: 'large',
+      description: 'Parallel computing power'
+    },
+    { 
+      id: 2,
+      icon: Database, 
+      value: '50', 
+      suffix: 'M+',
+      label: 'Emails Trained',
+      color: 'violet',
+      size: 'medium'
+    },
+    { 
+      id: 3,
+      icon: Shield, 
+      value: '99.2', 
+      suffix: '%',
+      label: 'Accuracy',
+      color: 'emerald',
+      size: 'medium'
+    },
+    { 
+      id: 4,
+      icon: Zap, 
+      value: '10', 
+      suffix: 'ms',
+      label: 'Response',
+      color: 'amber',
+      size: 'small'
+    },
+    { 
+      id: 5,
+      icon: Activity, 
+      value: '24/7',
+      suffix: '',
+      label: 'Uptime',
+      color: 'rose',
+      size: 'small'
+    },
+  ];
+
+  const colorVariants = {
+    cyan: {
+      bg: 'from-cyan-500/20 via-cyan-400/10 to-transparent',
+      border: 'border-cyan-500/30 hover:border-cyan-400/60',
+      text: 'text-cyan-400',
+      glow: 'shadow-cyan-500/20',
+      accent: 'bg-cyan-400',
+    },
+    violet: {
+      bg: 'from-violet-500/20 via-violet-400/10 to-transparent',
+      border: 'border-violet-500/30 hover:border-violet-400/60',
+      text: 'text-violet-400',
+      glow: 'shadow-violet-500/20',
+      accent: 'bg-violet-400',
+    },
+    emerald: {
+      bg: 'from-emerald-500/20 via-emerald-400/10 to-transparent',
+      border: 'border-emerald-500/30 hover:border-emerald-400/60',
+      text: 'text-emerald-400',
+      glow: 'shadow-emerald-500/20',
+      accent: 'bg-emerald-400',
+    },
+    amber: {
+      bg: 'from-amber-500/20 via-amber-400/10 to-transparent',
+      border: 'border-amber-500/30 hover:border-amber-400/60',
+      text: 'text-amber-400',
+      glow: 'shadow-amber-500/20',
+      accent: 'bg-amber-400',
+    },
+    rose: {
+      bg: 'from-rose-500/20 via-rose-400/10 to-transparent',
+      border: 'border-rose-500/30 hover:border-rose-400/60',
+      text: 'text-rose-400',
+      glow: 'shadow-rose-500/20',
+      accent: 'bg-rose-400',
+    },
+  };
+
+  return (
+    <div className="grid grid-cols-4 md:grid-cols-6 gap-3 md:gap-4 auto-rows-[80px] md:auto-rows-[100px]">
+      {/* Large feature card - spans 2 cols and 2 rows */}
+      <MagneticCard className="col-span-2 row-span-2 relative group">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          whileHover={{ scale: 1.02 }}
+          className={`h-full p-5 md:p-6 rounded-[28px] border ${colorVariants.cyan.border} bg-gradient-to-br ${colorVariants.cyan.bg} backdrop-blur-xl overflow-hidden relative cursor-pointer transition-all duration-500 hover:shadow-2xl ${colorVariants.cyan.glow}`}
+        >
+          {/* Animated background orb */}
+          <motion.div
+            className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-cyan-500/20 blur-3xl"
+            animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.8, 0.5] }}
+            transition={{ duration: 4, repeat: Infinity }}
+          />
+          
+          {/* Icon with pulse effect */}
+          <div className="relative">
+            <motion.div
+              className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-400 to-cyan-600 flex items-center justify-center shadow-lg shadow-cyan-500/30"
+              whileHover={{ rotate: 10 }}
+            >
+              <Cpu className="w-6 h-6 text-white" />
+            </motion.div>
+            <motion.div
+              className="absolute inset-0 rounded-2xl bg-cyan-400/50"
+              animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+          </div>
+
+          <div className="mt-4">
+            <motion.p
+              className="text-4xl md:text-5xl font-black text-white tracking-tight"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              <AnimatedCounter value="128" suffix="" /> 
+              <span className="text-cyan-400 text-2xl md:text-3xl ml-1">TPU</span>
+            </motion.p>
+            <p className="text-gray-400 text-sm mt-1">Processing Cores</p>
+            <p className="text-gray-500 text-xs mt-2 hidden md:block">Parallel computing power for instant analysis</p>
+          </div>
+
+          {/* Decorative element */}
+          <div className="absolute bottom-4 right-4 opacity-10">
+            <Cpu className="w-20 h-20 text-cyan-400" />
+          </div>
+        </motion.div>
+      </MagneticCard>
+
+      {/* Medium card - Training Data */}
+      <MagneticCard className="col-span-2 row-span-1 relative group">
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          whileHover={{ scale: 1.02 }}
+          className={`h-full p-4 rounded-[20px] border ${colorVariants.violet.border} bg-gradient-to-r ${colorVariants.violet.bg} backdrop-blur-xl overflow-hidden relative cursor-pointer transition-all duration-500 hover:shadow-xl ${colorVariants.violet.glow}`}
+        >
+          <div className="flex items-center justify-between h-full">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
+                <Database className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="text-2xl md:text-3xl font-bold text-white">
+                  <AnimatedCounter value="50" suffix="M+" />
+                </p>
+                <p className="text-gray-400 text-xs">Emails Trained</p>
+              </div>
+            </div>
+            <div className="hidden md:flex flex-col items-end">
+              <TrendingUp className="w-5 h-5 text-violet-400" />
+              <span className="text-violet-400 text-xs mt-1">Growing</span>
+            </div>
+          </div>
+        </motion.div>
+      </MagneticCard>
+
+      {/* Accuracy card with circular progress */}
+      <MagneticCard className="col-span-2 row-span-2 relative group">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          whileHover={{ scale: 1.02 }}
+          className={`h-full p-5 rounded-[28px] border ${colorVariants.emerald.border} bg-gradient-to-br ${colorVariants.emerald.bg} backdrop-blur-xl overflow-hidden relative cursor-pointer transition-all duration-500 hover:shadow-2xl ${colorVariants.emerald.glow}`}
+        >
+          {/* Circular progress */}
+          <div className="flex flex-col items-center justify-center h-full">
+            <div className="relative">
+              <svg className="w-24 h-24 md:w-32 md:h-32 -rotate-90">
+                <circle
+                  cx="50%"
+                  cy="50%"
+                  r="45%"
+                  stroke="currentColor"
+                  strokeWidth="6"
+                  fill="none"
+                  className="text-gray-800"
+                />
+                <motion.circle
+                  cx="50%"
+                  cy="50%"
+                  r="45%"
+                  stroke="url(#emeraldGradient)"
+                  strokeWidth="6"
+                  fill="none"
+                  strokeLinecap="round"
+                  initial={{ strokeDasharray: "0 283" }}
+                  whileInView={{ strokeDasharray: "280 283" }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 2, ease: "easeOut" }}
+                />
+                <defs>
+                  <linearGradient id="emeraldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#10b981" />
+                    <stop offset="100%" stopColor="#34d399" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center flex-col">
+                <span className="text-3xl md:text-4xl font-black text-white">99.2</span>
+                <span className="text-emerald-400 text-sm font-semibold">%</span>
+              </div>
+            </div>
+            <div className="mt-3 text-center">
+              <p className="text-white font-semibold">Model Accuracy</p>
+              <p className="text-gray-500 text-xs mt-1">Industry leading precision</p>
+            </div>
+          </div>
+        </motion.div>
+      </MagneticCard>
+
+      {/* Small cards row */}
+      <MagneticCard className="col-span-2 md:col-span-1 row-span-1 relative group">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          whileHover={{ scale: 1.05 }}
+          className={`h-full p-4 rounded-[16px] border ${colorVariants.amber.border} bg-gradient-to-br ${colorVariants.amber.bg} backdrop-blur-xl overflow-hidden relative cursor-pointer transition-all duration-500 flex flex-col justify-center items-center hover:shadow-xl ${colorVariants.amber.glow}`}
+        >
+          <Zap className="w-6 h-6 text-amber-400 mb-1" />
+          <p className="text-xl font-bold text-white"><AnimatedCounter value="10" suffix="ms" /></p>
+          <p className="text-gray-500 text-[10px]">Response</p>
+        </motion.div>
+      </MagneticCard>
+
+      <MagneticCard className="col-span-2 md:col-span-1 row-span-1 relative group">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          whileHover={{ scale: 1.05 }}
+          className={`h-full p-4 rounded-[16px] border ${colorVariants.rose.border} bg-gradient-to-br ${colorVariants.rose.bg} backdrop-blur-xl overflow-hidden relative cursor-pointer transition-all duration-500 flex flex-col justify-center items-center hover:shadow-xl ${colorVariants.rose.glow}`}
+        >
+          <Activity className="w-6 h-6 text-rose-400 mb-1" />
+          <p className="text-xl font-bold text-white">24/7</p>
+          <p className="text-gray-500 text-[10px]">Uptime</p>
+        </motion.div>
+      </MagneticCard>
+    </div>
+  );
+};
+
+// Neural Node component
 const NeuralNode = ({ x, y, delay, size = 8 }) => (
   <motion.div
     className="absolute rounded-full bg-cyan-400"
@@ -179,7 +509,7 @@ const AIVisualization = () => {
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="relative h-[400px] md:h-[500px] rounded-3xl bg-gradient-to-br from-gray-900/80 to-gray-900/40 backdrop-blur-xl border border-gray-800 overflow-hidden"
+          className="relative h-[350px] md:h-[400px] rounded-3xl bg-gradient-to-br from-gray-900/80 to-gray-900/40 backdrop-blur-xl border border-gray-800 overflow-hidden mb-10"
         >
           {/* Grid background */}
           <div className="absolute inset-0 opacity-[0.03]">
@@ -278,39 +608,14 @@ const AIVisualization = () => {
           </motion.div>
         </motion.div>
 
-        {/* Stats row */}
+        {/* Bento Grid Stats */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
           viewport={{ once: true }}
-          className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4"
         >
-          {[
-            { icon: Cpu, label: 'Processing Units', value: '128 TPU Cores' },
-            { icon: Database, label: 'Training Data', value: '50M+ Emails' },
-            { icon: Shield, label: 'Model Accuracy', value: '99.2%' },
-            { icon: Zap, label: 'Inference Time', value: '<10ms' },
-          ].map((stat, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.5 + i * 0.1 }}
-              viewport={{ once: true }}
-              className="p-4 rounded-xl bg-gray-900/50 border border-gray-800"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center">
-                  <stat.icon className="w-5 h-5 text-cyan-400" />
-                </div>
-                <div>
-                  <p className="text-white font-semibold text-sm">{stat.value}</p>
-                  <p className="text-gray-500 text-xs">{stat.label}</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+          <BentoStatsGrid />
         </motion.div>
       </div>
     </section>
